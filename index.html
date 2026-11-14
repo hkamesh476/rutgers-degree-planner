@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Interactive prerequisite flowchart and requirement checklists for a Rutgers–New Brunswick Economics major with Computer Science and Mathematics minors.">
+<style>html{color-scheme:light}:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Econ + CS + Math Pathway</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky top bar · program tabs over a full-width auto-laid-out prerequisite flowchart with a detail sidebar · requirement tables · planning notes · sources. */
+:root{
+  --bg:#f3f4f7; --surface:#ffffff; --sunken:#f7f8fa; --fg:#121826; --muted:#5a6375; --faint:#8a93a4;
+  --line:#dde1e8; --edge:#aab2c0; --ink:#1b2b4b; --ink-fg:#ffffff;
+  --econ:#a3263a; --math:#2b5aa8; --cs:#16795a; --ext:#8a93a4;
+  --econ-t:#fbf1f2; --math-t:#eff3fb; --cs-t:#edf6f2;
+  --warn:#8a5a00; --warn-t:#fcf5e6;
+  --display:"Inter Tight","Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1016; --surface:#161a22; --sunken:#12161d; --fg:#e7eaf0; --muted:#9aa3b3; --faint:#6d7686;
+  --line:#2a303b; --edge:#4a5261; --ink:#c9d6f2; --ink-fg:#0d1016;
+  --econ:#f07285; --math:#86a9ee; --cs:#53c79d; --ext:#6d7686;
+  --econ-t:#24161a; --math-t:#151c2a; --cs-t:#12221c;
+  --warn:#e5b257; --warn-t:#251e10; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0d1016; --surface:#161a22; --sunken:#12161d; --fg:#e7eaf0; --muted:#9aa3b3; --faint:#6d7686;
+  --line:#2a303b; --edge:#4a5261; --ink:#c9d6f2; --ink-fg:#0d1016;
+  --econ:#f07285; --math:#86a9ee; --cs:#53c79d; --ext:#6d7686;
+  --econ-t:#24161a; --math-t:#151c2a; --cs-t:#12221c;
+  --warn:#e5b257; --warn-t:#251e10; color-scheme:dark }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.in{max-width:1320px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.015em}
+p{margin:0}
+a{color:inherit}
+.mono{font-family:var(--mono)}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .in{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:54px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:15px}
+.brand .mk{width:26px;height:26px;border-radius:6px;background:var(--ink);color:var(--ink-fg);display:grid;place-items:center;font-size:12px;font-weight:800}
+.top nav{display:flex;gap:4px;flex-wrap:wrap}
+.top nav a{text-decoration:none;color:var(--muted);font-size:13.5px;font-weight:500;padding:6px 10px;border-radius:6px}
+.top nav a:hover{background:var(--sunken);color:var(--fg)}
+
+/* Hero */
+.hero{padding-block:40px 28px}
+.hero h1{font-size:clamp(28px,4vw,44px);font-weight:800;line-height:1.08;max-width:22ch}
+.hero .sub{color:var(--muted);max-width:70ch;margin-top:12px;font-size:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;margin-top:28px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.kpi{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.kpi .n{font-family:var(--display);font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.kpi .t{font-weight:600;font-size:14px}
+.kpi .d{color:var(--muted);font-size:13px}
+.kpi.econ .n{color:var(--econ)} .kpi.math .n{color:var(--math)} .kpi.cs .n{color:var(--cs)}
+
+section.blk{padding-block:28px}
+.sh{display:flex;justify-content:space-between;align-items:end;gap:12px 24px;flex-wrap:wrap;margin-bottom:16px}
+.sh h2{font-size:24px;font-weight:700}
+.sh p{color:var(--muted);margin-top:4px;max-width:70ch}
+
+/* Tabs */
+.tabs{display:inline-flex;background:var(--sunken);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px;flex-wrap:wrap}
+.tabs button{all:unset;cursor:pointer;font-size:13.5px;font-weight:600;padding:7px 14px;border-radius:6px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.tabs button i{width:8px;height:8px;border-radius:50%;background:var(--c,var(--ink))}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 1px var(--line)}
+.tabs button:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+
+/* Chart frame */
+.frame{display:grid;grid-template-columns:minmax(0,1fr);border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.reqbar{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.req{display:flex;align-items:baseline;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;background:var(--sunken)}
+.req b{font-family:var(--mono);font-weight:500;font-size:12px;color:var(--c,var(--fg))}
+.canvas-wrap{overflow:auto;min-width:0;max-height:820px;background-color:var(--sunken);background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:18px 18px}
+.canvas{position:relative}
+.canvas svg{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.colh{position:absolute;top:14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.lane{position:absolute;left:0;right:0;border-top:1px solid var(--line)}
+.lane:first-of-type{border-top:0}
+.lanelab{position:absolute;left:16px;width:110px;display:flex;flex-direction:column;gap:2px}
+.lanelab b{font-family:var(--display);font-size:14px;color:var(--c)}
+.lanelab small{color:var(--muted);font-size:11.5px;line-height:1.3}
+
+.node{all:unset;box-sizing:border-box;position:absolute;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:1px;
+  padding:7px 10px 7px 12px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:6px;
+  box-shadow:0 1px 2px rgba(15,23,42,.05);transition:opacity .15s,box-shadow .15s,transform .15s}
+.node .nc{font-family:var(--mono);font-size:11px;color:var(--c);display:flex;justify-content:space-between;gap:6px;white-space:nowrap}
+.node .nc em{font-style:normal;color:var(--faint);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase}
+.node .nt{font-weight:600;font-size:13px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.node.k-opt{border-style:dashed;border-left-style:solid}
+.node>*{flex:none}
+.node.grp{cursor:default;justify-content:flex-start;padding:0 7px 7px;background:color-mix(in srgb,var(--c) 6%,var(--sunken));border:1px solid color-mix(in srgb,var(--c) 35%,var(--line));border-radius:8px;box-shadow:none}
+.node.grp:hover{box-shadow:none}
+.grp .gh{all:unset;cursor:pointer;box-sizing:border-box;height:36px;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 4px;font-family:var(--mono);font-size:11px;color:var(--c);white-space:nowrap}
+.grp .gh>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.grp .gh em{flex:none}
+.grp .gh b{font-family:var(--body);font-size:12.5px;color:var(--fg);font-weight:600}
+.grp .gh em{font-style:normal;color:var(--faint);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.grp .gh:focus-visible,.sub:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.subs{display:grid;gap:6px}
+.sub{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;justify-content:center;gap:1px;padding:5px 9px 5px 10px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:5px;min-width:0;transition:opacity .15s,box-shadow .15s}
+.sub:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 20%,transparent)}
+.sub>span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub .sc{display:flex;justify-content:space-between;gap:6px;font-family:var(--mono);font-size:10.5px;color:var(--c)}
+.sub .sc em{font-style:normal;color:var(--faint);font-size:10px}
+.sub .sc i{font-style:normal;font-family:var(--body);font-size:9.5px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);padding:0 4px;border-radius:3px;margin-left:4px}
+.sub .st{font-weight:600;font-size:12.5px;line-height:1.3}
+.sub .sp{font-size:11px;color:var(--muted)}
+.sub.dim{opacity:.35}
+.sub.nm,.node.nm{border-left-color:var(--faint)}
+.sub.nm .sc,.node.nm .nc{color:var(--faint)}
+.sub.sel{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 38%,transparent)}
+.side ul.cl{gap:8px}
+.side ul.cl b{font-weight:600}
+.node.k-ext{background:transparent;border-style:dashed;border-left-style:dashed}
+.node.k-ext .nt{color:var(--muted)}
+.node.p-econ{--c:var(--econ)} .node.p-math{--c:var(--math)} .node.p-cs{--c:var(--cs)}
+.node:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 20%,transparent)}
+.node:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.canvas.focus .node{opacity:.22}
+.canvas.focus .node.on{opacity:1}
+.canvas.focus .node.sel{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 38%,transparent);transform:translateY(-1px)}
+path.e{fill:none;stroke:var(--edge);stroke-width:1.4;transition:opacity .15s}
+path.e.d{stroke-dasharray:4 4}
+.canvas.focus path.e{opacity:.08}
+.canvas.focus path.e.on{opacity:1;stroke-width:2}
+marker path{fill:var(--edge)}
+
+.side{border-top:1px solid var(--line);padding:18px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 28px;align-items:start;min-width:0;background:var(--surface)}
+.side>div:first-child{grid-column:1/-1}
+.side .legend{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;gap:8px 20px}
+.side .empty{color:var(--muted);font-size:14px}
+.side h3{font-size:18px;font-weight:700;line-height:1.25}
+.side .cc{font-family:var(--mono);font-size:12px;color:var(--c)}
+.side .chip{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--sunken);border:1px solid var(--line);color:var(--muted)}
+.side .kv{display:flex;flex-direction:column;gap:3px}
+.side .kv p{font-size:14px}
+.side ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;font-size:13.5px}
+.side ul button{all:unset;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.side ul button:hover{text-decoration-color:currentColor}
+.side .lnk{font-size:13px;color:var(--c);font-weight:500}
+.side .clr{all:unset;cursor:pointer;font-size:13px;color:var(--muted);text-decoration:underline;align-self:flex-start}
+.legend{display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin-top:auto}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:24px;height:13px;border:1px solid var(--muted);border-left-width:3px;border-radius:3px;flex:none}
+.legend i.o{border-style:dashed;border-left-style:solid}
+.legend i.x{border-style:dashed}
+.legend i.l{height:0;border-width:1.5px 0 0;border-radius:0}
+.legend i.l.d{border-style:dashed}
+
+/* Tables */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card header{padding:16px 18px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.card header h3{font-size:17px;font-weight:700}
+.card header span{font-family:var(--mono);font-size:12px;color:var(--c)}
+.card.econ{--c:var(--econ)} .card.math{--c:var(--math)} .card.cs{--c:var(--cs)}
+.card header{box-shadow:inset 0 3px 0 var(--c)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-family:var(--mono);font-weight:500;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 18px 6px;background:var(--sunken)}
+td{padding:7px 18px;border-top:1px solid var(--line);vertical-align:top}
+td.c{font-family:var(--mono);font-size:12px;color:var(--c);white-space:nowrap;width:1%}
+td.g{color:var(--muted);font-size:12.5px;white-space:nowrap;width:1%;text-align:right}
+tr.sec td{background:var(--sunken);font-weight:600;font-size:12.5px;color:var(--fg);padding-block:6px}
+.card .foot{padding:12px 18px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px;margin-top:auto}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.note{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:5px}
+.note .label{color:var(--warn)}
+.note h3{font-size:15.5px;font-weight:700}
+.note p{font-size:14px;color:var(--muted)}
+
+footer.src{border-top:1px solid var(--line);padding-block:24px 48px;font-size:13px;color:var(--muted)}
+footer.src .in{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+footer.src ul{margin:6px 0 0;padding-left:18px}
+
+@media (max-width:900px){
+  .canvas-wrap{max-height:none}
+}
+@media (max-width:560px){ td.g{display:none} td.c{white-space:normal} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="top gut"><div class="in">
+  <div class="brand"><span class="mk">RU</span>Degree Pathway Planner</div>
+  <nav><a href="#flowchart">Flowchart</a><a href="#requirements">Requirements</a><a href="#notes">Planning notes</a><a href="#sources">Sources</a></nav>
+</div></div>
+
+<header class="hero gut"><div class="in">
+  <div class="label">Rutgers–New Brunswick · School of Arts and Sciences</div>
+  <h1 style="margin-top:10px">Economics major with Computer Science and Mathematics minors</h1>
+  <p class="sub">A prerequisite flowchart for all three programs, built from the department websites. Select any course to trace what it needs and what it opens up.</p>
+  <div class="kpis">
+    <div class="kpi econ"><span class="n">12</span><span class="t">Economics major</span><span class="d">5 core + 7 electives, plus precalculus, Calculus I and statistics</span></div>
+    <div class="kpi math"><span class="n">8</span><span class="t">Mathematics minor</span><span class="d">Calculus I–III, linear algebra, 4 electives</span></div>
+    <div class="kpi cs"><span class="n">6</span><span class="t">Computer Science minor</span><span class="d">From the approved list, at least 2 at the 300/400 level</span></div>
+  </div>
+</div></header>
+
+<section class="blk gut" id="flowchart"><div class="in">
+  <div class="sh">
+    <div><h2>Prerequisite flowchart</h2><p>Arrows point from a prerequisite to the course it unlocks. Columns show prerequisite depth, not semesters.</p></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+  </div>
+  <div class="frame">
+    <div class="reqbar" id="reqbar"></div>
+    <div class="canvas-wrap"><div class="canvas" id="canvas"></div></div>
+    <aside class="side" id="side"></aside>
+  </div>
+</div></section>
+
+<section class="blk gut" id="requirements"><div class="in">
+  <div class="sh"><div><h2>Requirement checklists</h2><p>Course numbers as currently listed by each department.</p></div></div>
+  <div class="cards">
+    <article class="card econ">
+      <header><h3>Economics major</h3><span>01:220</span></header>
+      <table>
+        <thead><tr><th>Course</th><th>Title</th><th>Grade</th></tr></thead>
+        <tbody>
+          <tr class="sec"><td colspan="3">Support courses</td></tr>
+          <tr><td class="c">01:640:111/115</td><td>Precalculus</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:640:151</td><td>Calculus I (130 or 135 also accepted)</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:960:211/285</td><td>Statistics</td><td class="g">C or better</td></tr>
+          <tr class="sec"><td colspan="3">Introductory</td></tr>
+          <tr><td class="c">01:220:102</td><td>Introduction to Microeconomics</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:220:103</td><td>Introduction to Macroeconomics</td><td class="g">C or better</td></tr>
+          <tr class="sec"><td colspan="3">Core</td></tr>
+          <tr><td class="c">01:220:320</td><td>Intermediate Microeconomic Analysis</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:220:321</td><td>Intermediate Macroeconomic Analysis</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:220:322</td><td>Econometrics</td><td class="g">C or better</td></tr>
+          <tr class="sec"><td colspan="3">Electives (7)</td></tr>
+          <tr><td class="c">01:220:4xx</td><td>At least 4 upper-level electives</td><td class="g">1 D allowed</td></tr>
+          <tr><td class="c">01:220:3xx</td><td>At most 3 lower-level electives</td><td class="g">across all 7</td></tr>
+        </tbody>
+      </table>
+      <div class="foot"><span>01:220:212 counts toward the minor only.</span><span>320, 321 and 322 from Newark or Camden do not count.</span></div>
+    </article>
+
+    <article class="card math">
+      <header><h3>Mathematics minor</h3><span>01:640</span></header>
+      <table>
+        <thead><tr><th>Course</th><th>Title</th><th>Grade</th></tr></thead>
+        <tbody>
+          <tr class="sec"><td colspan="3">Calculus and linear algebra</td></tr>
+          <tr><td class="c">01:640:151</td><td>Calculus I</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:640:152</td><td>Calculus II</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:640:251</td><td>Multivariable Calculus</td><td class="g">C or better</td></tr>
+          <tr><td class="c">01:640:250</td><td>Introductory Linear Algebra</td><td class="g">C or better</td></tr>
+          <tr class="sec"><td colspan="3">Electives (4)</td></tr>
+          <tr><td class="c">252, 244</td><td>Differential Equations, or 244</td><td class="g">1 D allowed</td></tr>
+          <tr><td class="c">3xx–4xx</td><td>Any 300–400 level math except 491 and 492</td><td class="g">across all 4</td></tr>
+          <tr class="sec"><td colspan="3">Suggested for an economics major</td></tr>
+          <tr><td class="c">01:640:354</td><td>Linear Optimization</td><td class="g">needs 250</td></tr>
+          <tr><td class="c">01:640:477</td><td>Mathematical Theory of Probability</td><td class="g">needs 251</td></tr>
+          <tr><td class="c">01:640:481</td><td>Mathematical Theory of Statistics</td><td class="g">needs 250, 477</td></tr>
+        </tbody>
+      </table>
+      <div class="foot"><span>At least 3 of the 4 electives must be taken at New Brunswick.</span></div>
+    </article>
+
+    <article class="card cs">
+      <header><h3>Computer Science minor</h3><span>01:198</span></header>
+      <table>
+        <thead><tr><th>Course</th><th>Title</th><th>Level</th></tr></thead>
+        <tbody>
+          <tr class="sec"><td colspan="3">Choose 6 from the approved list</td></tr>
+          <tr><td class="c">01:198:120</td><td>Introduction to Computer Science (formerly 111)</td><td class="g">intro</td></tr>
+          <tr><td class="c">01:198:121/122</td><td>Data Structures (formerly 112)</td><td class="g">intro</td></tr>
+          <tr><td class="c">205, 206</td><td>Discrete Structures I and II</td><td class="g">200</td></tr>
+          <tr><td class="c">210–214</td><td>Data Mgmt for Data Science, Architecture, Software Methodology, Systems Programming</td><td class="g">200</td></tr>
+          <tr><td class="c">314–352</td><td>314, 323, 324, 334, 336, 344, 345, 352</td><td class="g">300</td></tr>
+          <tr><td class="c">411–462</td><td>411, 416, 417, 419, 424, 425, 428, 431, 437, 439, 440, 442, 452, 460, 461, 462</td><td class="g">400</td></tr>
+          <tr class="sec"><td colspan="3">Rules</td></tr>
+          <tr><td class="c">3xx/4xx</td><td>At least 2 of the 6, taken in the CS department (01:198:3xx or 4xx), chosen with a departmental advisor</td><td class="g">min 2</td></tr>
+          <tr><td class="c">01:198</td><td>At least 5 of the 6 taken at New Brunswick</td><td class="g">min 5</td></tr>
+        </tbody>
+      </table>
+      <div class="foot"><span>No more than one D; a D never satisfies a prerequisite.</span><span>105, 107, 110, 170 and 405 do not count.</span></div>
+    </article>
+  </div>
+</div></section>
+
+<section class="blk gut" id="notes"><div class="in">
+  <div class="sh"><div><h2>Planning notes</h2><p>Where the three programs affect each other.</p></div></div>
+  <div class="notes">
+    <div class="note"><span class="label">Recommended</span><h3>Take 640:151 for Calculus I</h3><p>Economics accepts 130, 135 or 151, but the math minor names 151, and Calculus II (152) is a prerequisite for CS 206, 314, 336 and 440. One course serves all three programs.</p></div>
+    <div class="note"><span class="label">Conflict</span><h3>CS 206 or Math 477, not both</h3><p>Credit is not given for both. Use 206 for the CS minor and choose a different math elective, such as 354 or 252.</p></div>
+    <div class="note"><span class="label">Overlap</span><h3>Linear algebra pays off twice</h3><p>640:250 is required for the math minor and is a prerequisite for CS 323, 334, 428 and 462.</p></div>
+    <div class="note"><span class="label">Suggested</span><h3>Data-focused CS path</h3><p>120 → 121/122 → 205 → 206 → 336 Data Management → 461 Machine Learning. Pairs well with econ 421 Forecasting and Big Data and 424 Machine Learning for Economics.</p></div>
+    <div class="note"><span class="label">Check</span><h3>Some CS pages are incomplete</h3><p>345 has no link on the minor page, and 415 Compilers is listed there but is no longer offered. The 425 page is titled Brain-Inspired Computing, though the minor list calls it Computer Methods in Statistics.</p></div>
+    <div class="note"><span class="label">Check</span><h3>Double counting</h3><p>The math minor page states no overlap rule, and the CS page's overlap sentence does not say which major it means. Confirm with SAS advising.</p></div>
+  </div>
+</div></section>
+
+<footer class="src gut" id="sources"><div class="in">
+  <div><div class="label">Sources</div>
+    <ul>
+      <li><a href="https://economics.rutgers.edu/academics/undergraduate/major-requirements" target="_blank" rel="noopener">Economics: Major Requirements</a></li>
+      <li><a href="https://economics.rutgers.edu/academics/undergraduate/course-descriptions" target="_blank" rel="noopener">Economics: Course Descriptions</a></li>
+      <li><a href="https://www.cs.rutgers.edu/academics/undergraduate/cs-degrees/minor-in-cs" target="_blank" rel="noopener">Computer Science: Minor in CS</a> and linked course pages</li>
+      <li><a href="https://www.math.rutgers.edu/academics/undergraduate/minors" target="_blank" rel="noopener">Mathematics: Minors</a> and <a href="https://www.math.rutgers.edu/academics/undergraduate/courses" target="_blank" rel="noopener">Courses</a></li>
+    </ul></div>
+  <div><div class="label">About this plan</div>
+    <p style="margin-top:6px">Compiled 13 November 2026. CS course numbers follow the minor page, which uses the new IDs (120 for Introduction to CS, 121/122 for Data Structures); older course pages still cite 111 and 112. Confirm with Degree Navigator and an advisor before registering.</p></div>
+</div></footer>
+
+<script>
+(function(){
+  const CSB="https://www.cs.rutgers.edu/academics/undergraduate/course-synopses/course-details/";
+  // Course catalog. pre: [id] = required prerequisite, [id,1] = one-of / recommended (dashed).
+  const C={
+    pre:{p:"math",code:"01:640:111/115",t:"Precalculus",k:"req",pre:[],i:"Prerequisite for 220:102, 220:103, 640:151 and 640:250, with a C or better. Placement can replace it."},
+    c1:{p:"math",sem:"Fall, Spring, Summer",cr:"4",core:"QQ, QR",mn:"Yes",pr:"Math 112 or Math 115 or placement",code:"01:640:151",t:"Calculus I",k:"req",pre:[["pre"]],i:"Econ accepts 130, 135 or 151 (C or better) for 320, 321 and 322. The math minor names 151."},
+    la:{p:"math",sem:"Fall, Spring, Summer",cr:"3",core:"",mn:"Yes",pr:"Math 112 or Math 115 or placement",code:"01:640:250",t:"Introductory Linear Algebra",k:"req",pre:[["pre"]],i:"Required for the math minor. Prerequisite for many math electives and for CS 323, 334, 428 and 462."},
+    c2:{p:"math",sem:"Fall, Spring, Summer",cr:"4",core:"QQ, QR",mn:"Yes",pr:"Calc I (Math 135 or Math 151, not Math 130)",code:"01:640:152",t:"Calculus II",k:"req",pre:[["c1"]],i:"Prerequisite: Calculus I (135 or 151). Required for the math minor and for CS 206, 314, 336, 419, 440."},
+    c3:{p:"math",sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"Calc II",code:"01:640:251",t:"Multivariable Calculus",k:"req",pre:[["c2"]],i:"\"Calc III\". Required for the math minor and a prerequisite for most 300-level math."},
+    st:{p:"econ",code:"01:960:211/285",t:"Statistics",k:"req",pre:[],i:"01:960:211 or 285 with a C or better. Prerequisite for Econometrics (322)."},
+    e102:{p:"econ",sem:"Fall, Spring, Summer",code:"01:220:102",t:"Intro to Microeconomics",k:"req",pre:[["pre"]],i:"Prerequisite: precalculus with C or better. Earn a C or better to continue."},
+    e103:{p:"econ",sem:"Fall, Spring, Summer",code:"01:220:103",t:"Intro to Macroeconomics",k:"req",pre:[["pre"]],i:"Prerequisite: precalculus with C or better. Earn a C or better to continue."},
+    e320:{p:"econ",sem:"Fall, Spring, Summer",code:"01:220:320",t:"Intermediate Micro",k:"req",pre:[["e102"],["c1"]],i:"Prerequisites: 220:102; Calculus I (130, 135 or 151). No credit for both 320 and 203."},
+    e321:{p:"econ",sem:"Fall, Spring, Summer",code:"01:220:321",t:"Intermediate Macro",k:"req",pre:[["e102"],["e103"],["c1"]],i:"Prerequisites: 220:102, 103; Calculus I. No credit for both 321 and 204."},
+    e322:{p:"econ",sem:"Fall, Spring, Summer",code:"01:220:322",t:"Econometrics",k:"req",pre:[["e102"],["e103"],["st"],["c1"]],i:"Prerequisites: 220:102, 103; 960:211 or 285 or equivalent; Calculus I. No credit for both 322 and 326."},
+    e300:{p:"econ",code:"Up to 3",t:"300-level electives",k:"opt",pre:[["e102"],["e103"]],i:"No more than 3 count. Generally need only 102 and 103. Examples: 300 International Economics, 301 Money, Banking and the Financial System, 390 Choice and Strategy in Politics, 395 Law and Economics."},
+    e400:{p:"econ",code:"At least 4",t:"400-level electives",k:"opt",pre:[["e320"],["e321"],["e322"],["c2",1]],i:"Prerequisites vary: some combination of 320, 321 and 322, sometimes Calculus II. Examples: 413 Financial Economics, 420 Computational Methods, 421 Economic Forecasting and Big Data, 424 Machine Learning for Economics, 482 Game Theory."},
+
+    gEL:{p:"econ",code:"No certificate",t:"Lower-level electives",k:"opt",pre:[],i:"Lower-level electives that are not part of any certificate. At most 3 lower-level electives count toward the major.",
+      list:[["01:220:301","Money, Banking and the Financial System","01:220:102, 103","Fall, Spring","","","",["e102","e103"]],["01:220:390","Choice and Strategy in Politics","None listed","Fall, Spring","","","",[]],["01:220:395","Law and Economics","01:220:102, 103","Fall, Spring","","","",["e102","e103"]],["01:220:397","Internship in Economics (1 cr)","01:220:102, 103. Majors only; needs approval of the director of undergraduate studies and a semester paper.","Fall, Spring","","","",["e102","e103"]],["01:220:398 / 399","Independent Study in Economics","01:220:102, 103. By permission of instructor and department; at most two independent study courses.","Fall, Spring","","","",["e102","e103"]],["14:540:343","Engineering Economics","None listed; open to all New Brunswick students","Fall, Spring, Summer","","","",[]],["33:010:272","Intro to Financial Accounting","None listed; not open to first-year students","Fall, Spring, Summer, Winter","","","",[]],["33:010:275","Intro to Managerial Accounting","33:010:272","Fall, Spring, Summer, Winter","","","",[]]]},
+    cCOMP:{p:"econ",code:"Certificate",t:"Computational Econ & Data Analytics",k:"opt",pre:[],i:"Four courses: core 420 plus at least three data-methods electives (421, 422, 423, 424). B or better in each, overall GPA 3.0+, declared econ majors only. The department recommends taking 322 and Calculus II early.",
+      list:[["01:220:420","Computational Methods for Research in Economics","01:220:320, 321 and 322; 01:640:136 or 152","Fall","","","",["e320","e321","e322","c2"],"Core"],["01:220:421","Economic Forecasting and Big Data","01:220:320, 321, and 322","Fall, Spring, Summer","","","",["e320","e321","e322"],"Also Financial"],["01:220:422","Advanced Cross-Sectional and Panel Econometrics","01:220:320, 321, and 322; 01:640:136 or 152. Open to students doing honors research, others by special permission.","Fall","","","",["e320","e321","e322","c2"],"Also Public Policy"],["01:220:423","Advanced Time Series and Financial Econometrics","01:220:320, 321, and 322; 01:640:136 or 152","Fall, Spring","","","",["e320","e321","e322","c2"],"Also Financial, Global"],["01:220:424","Machine Learning for Economics","01:220:320, 321, and 322; 01:640:136 or 152","Spring","","","",["e320","e321","e322","c2"]]]},
+    cTHE:{p:"econ",code:"Certificate",t:"Economic Theory",k:"opt",pre:[],i:"Four courses: one core (481 or 482) plus three electives (the other core course may count). B or better in each, GPA 3.0+, econ majors only. Also requires Math 152, Math 250, and either Math 477 + 481 or Stat 381 + 382 (which can replace 960:285 in the major core).",
+      list:[["01:220:481","Economics of Uncertainty","01:220:320; 01:960:211 or 285; 01:640:136 or 152","Fall, Spring","","","",["e320","st","c2"],"Core · also Financial"],["01:220:482","Game Theory and Economics","01:220:320; 01:960:211 or 285; 01:640:136 or 152","Fall, Spring","","","",["e320","st","c2"],"Core"],["01:220:441","Industrial Organization","01:220:320 and 322","Fall, Spring, Summer","","","",["e320","e322"]],["01:220:480","Behavioral and Experimental Economics","01:220:320, 322; 01:640:136 or 152","Fall, Spring","","","",["e320","e322","c2"]],["01:220:483","Markets, Games and Information","01:220:320; 01:960:211 or 285; 01:640:136 or 152","Spring","","","",["e320","st","c2"]],["01:220:485","Advanced Microeconomic Theory","01:220:320, 321 and 322; 01:640:136 or 152","Fall, Spring","","","",["e320","e321","e322","c2"]]]},
+    cFIN:{p:"econ",code:"Certificate",t:"Financial Economics",k:"opt",pre:[],i:"Four courses: core 413 plus three electives from 421, 423, 436, 481 and 495 (Markets and Finance). Since May 2021 one elective must be 423, 436 or 481. B or better in each, GPA 3.0+, econ majors only. 421, 423, 436 and 481 are shown under their other certificates.",
+      list:[["01:220:413","Financial Economics","01:220:320 and 322","Fall, Spring, Summer","","","",["e320","e322"],"Core"],["01:220:495","Seminar in Economics (Markets and Finance)","None listed. Juniors and seniors, by permission of the department.","Fall, Spring","","","",[]]]},
+    cGLO:{p:"econ",code:"Certificate",t:"Global Economics",k:"opt",pre:[],i:"Four courses: one core (300, 435 or 436) plus three electives (another core course may count). Only two of the three core courses can count toward the major. B or better in each, GPA 3.0+, econ majors only. 423 is shown under Computational.",
+      list:[["01:220:300","International Economics","01:220:102 and 103 (per your list; the course page lists none)","Fall, Spring, Summer","","","",["e102","e103"],"Core"],["01:220:435","International Trade","01:220:320, 322","Fall, Spring","","","",["e320","e322"],"Core"],["01:220:436","International Finance and Macroeconomics","01:220:320, 321, and 322","Fall, Spring","","","",["e320","e321","e322"],"Core · also Financial"],["01:220:410","Advanced Macroeconomic Theory","01:220:320, 321 and 322; 01:640:136 or 152","Spring","","","",["e320","e321","e322","c2"]],["01:220:411","Global Financial Crises","01:220:320, 321 and 322 (the page prints 321 as \"01:200:321\")","Fall, Spring","","","",["e320","e321","e322"]],["01:220:439","Economic Development","01:220:320, 321, and 322","Fall, Spring","","","",["e320","e321","e322"]],["01:220:477","Economics of Population","01:220:320, 321, and 322","Fall, Spring, Summer","","","",["e320","e321","e322"]]]},
+    cPUB:{p:"econ",code:"Certificate",t:"Public Policy Economics",k:"opt",pre:[],i:"Four courses: one core (402, 433 or 460) plus three electives (more core courses may count). B or better in each, GPA 3.0+, econ majors only. 422 is shown under Computational.",
+      list:[["01:220:402","Labor Economics","01:220:320 and 322","Fall, Spring, Summer","","","",["e320","e322"],"Core"],["01:220:433","Health Economics","01:220:320 and 322","Fall, Spring, Summer","","","",["e320","e322"],"Core"],["01:220:460","Public Economics","01:220:320 and 322","Fall, Spring","","","",["e320","e322"],"Core"],["01:220:331","Economics of Crime","Not on the department's course list; prerequisites not published","Not listed","","","",[]],["01:220:431","Urban Economics","01:220:320 and 322","Spring","","","",["e320","e322"]],["01:220:432","Environmental Economics","01:220:320 and 322","Fall, Spring","","","",["e320","e322"]],["01:220:438","Education Economics","01:220:320 and 322","Fall, Spring","","","",["e320","e322"]],["01:220:463","Economics of Taxation","01:220:320 and 322","Fall, Spring","","","",["e320","e322"]]]},
+    gEU:{p:"econ",code:"No certificate",t:"Upper-level electives",k:"opt",pre:[],i:"Upper-level electives that are not part of any certificate.",
+      list:[["01:220:412","Monetary Theory and Policy","01:220:321 and 322","Fall, Spring, Summer","","","",["e321","e322"]],["01:220:490 / 491","Advanced Independent Study and Research","01:220:320, 321, and 322. Juniors and seniors by permission of instructor and department; at most two independent study courses.","Fall, Spring","","","",["e320","e321","e322"]],["01:220:493","Honors Research Seminar I","01:220:320, 321, and 322; pre- or corequisite 01:220:401. By permission of the department.","Fall","","","",["e320","e321","e322"]],["01:220:494","Honors Research Seminar II","01:220:320, 321, 322; pre- or corequisite 01:220:401. By permission of the department.","Spring","","","",["e320","e321","e322"]]]},
+    m025:{p:"math",code:"01:640:025",t:"Elementary Algebra",k:"opt",pre:[],sem:"Fall, Spring, Summer",cr:"3",core:"",mn:"No",pr:"Placement",i:"Entry-level algebra."},
+    m103:{p:"math",code:"01:640:103",t:"Topics in Math for the Liberal Arts",k:"opt",pre:[],sem:"Fall, Spring",cr:"3",core:"QQ, QR",mn:"No",pr:"None",i:"Quantitative literacy course."},
+    m026:{p:"math",code:"01:640:026",t:"Intermediate Algebra",k:"opt",pre:[["m025",1]],sem:"Fall, Spring, Summer",cr:"3",core:"",mn:"No",pr:"Math 025 or placement",i:"Leads into precalculus (111 or 115)."},
+    m107:{p:"math",code:"01:640:107",t:"Number and Operation for K-8 Teaching",k:"opt",pre:[["m025",1]],sem:"Fall, Spring",cr:"3",core:"QQ, QR",mn:"No",pr:"Math 025 or placement",i:"Teaching-track course. Leads to 109 and 110."},
+    m111:{p:"math",code:"01:640:111",t:"Precalculus I",k:"opt",pre:[["m026",1]],sem:"Fall, Spring, Summer",cr:"2",core:"",mn:"No",pr:"Math 026 or placement",i:"First half of the two-part precalculus sequence. Also a prerequisite for econ 102/103."},
+    m115:{p:"math",code:"01:640:115",t:"Precalculus College Mathematics",k:"opt",pre:[["m026",1]],sem:"Fall, Spring, Summer",cr:"4",core:"QQ, QR",mn:"No",pr:"Math 026 or placement",i:"One-semester precalculus. Replaces 111 + 112 and satisfies the econ precalculus prerequisite."},
+    m112:{p:"math",code:"01:640:112",t:"Precalculus II",k:"opt",pre:[["m111"]],sem:"Fall, Spring, Summer",cr:"2",core:"QQ, QR",mn:"No",pr:"Math 111",i:"Second half of precalculus. Leads to Calculus I and Linear Algebra."},
+    m135:{p:"math",code:"01:640:135",t:"Calculus I, Life & Social Sciences",k:"opt",pre:[["m112",1],["m115",1]],sem:"Fall, Spring, Summer",cr:"4",core:"QQ, QR",mn:"Yes",pr:"Math 112 or Math 115 or placement",i:"Accepted as Calculus I for econ and as a prerequisite for 152. The math minor names 151, so 151 is the safer choice."},
+    m291:{p:"math",code:"01:640:291",t:"Honors Calculus III",k:"opt",pre:[],col:5,sem:"Fall",cr:"4",core:"",mn:"Yes",pr:"Special permission only. Most students are incoming freshmen with a 5 on AP Calculus BC.",i:"Honors alternative to 251."},
+    m252:{p:"math",code:"01:640:252",t:"Calc IV: Elementary Differential Equations",k:"opt",pre:[["la"],["c3"]],sem:"Fall, Spring, Summer",cr:"3",core:"",mn:"Yes",pr:"Math 250 and Calc III",i:"This is Calc IV. Counts as a minor elective, and it is the prerequisite for every course that lists Calc IV."},
+    m285:{p:"math",code:"01:640:285",t:"Interest Theory for Actuarial Science",k:"opt",pre:[["c3"]],sem:"Fall, Spring",cr:"3",core:"",mn:"Actuarial track only",pr:"Calc III",i:"Actuarial track only. Prerequisite for 486."},
+    m300:{p:"math",code:"01:640:300 / 300:H",t:"Intro to Mathematical Reasoning",k:"opt",pre:[["la",1],["c3",1]],sem:"Fall, Spring, Summer",cr:"3",core:"",mn:"Yes",pr:"Math 250 or Calc III or special permission",i:"The proofs course. A C or better is required for 311, 350 and 351. The honors section 300:H (Fall, Spring) needs special permission."},
+    m311:{p:"math",code:"01:640:311",t:"Intro to Real Analysis I",k:"opt",pre:[["m252"],["m300"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"Calc IV and a C or better in Math 300",i:"Leads to 312, 432, 411 and 441."},
+    m411:{p:"math",code:"01:640:411",t:"Mathematical Analysis I",k:"opt",pre:[["m311",1]],sem:"Fall",cr:"3",core:"",mn:"Yes",pr:"Special permission only. Typically students have already taken Math 311.",i:"Leads to 412."},
+    m441:{p:"math",code:"01:640:441",t:"Introductory Topology",k:"opt",pre:[["m252"],["m311",1],["m411",1]],sem:"Fall",cr:"3",core:"",mn:"Yes",pr:"Calc IV and Analysis (Math 311 or Math 411)",i:"Leads to 442."},
+    m451:{p:"math",code:"01:640:451",t:"Abstract Algebra I",k:"opt",pre:[["gx350",1]],sem:"Fall",cr:"3",core:"",mn:"Yes",pr:"Special permission only. Typically students have already taken Math 350 or Math 351.",i:"Leads to 452."},
+    m477:{p:"math",code:"01:640:477",t:"Mathematical Theory of Probability",k:"opt",pre:[["c3"]],sem:"Fall, Spring, Summer",cr:"3",core:"",mn:"Yes",pr:"Calc III",i:"The probability prerequisite for 338, 348, 478, 481, 485, 486, 488. No credit for both 477 and CS 198:206."},
+    m485:{p:"math",code:"01:640:485",t:"Intro to Mathematical Finance",k:"opt",pre:[["la"],["m252"],["m477"]],sem:"Fall",cr:"3",core:"",mn:"Yes",pr:"Math 250 and Calc IV and Probability (Math 477 or Stat 381 or 14:332:226)",i:"Leads to 489 and 490."},
+    m486:{p:"math",code:"01:640:486",t:"Life Contingent Risk Models I",k:"opt",pre:[["m285"],["m477"]],sem:"Fall",cr:"3",core:"",mn:"Yes",pr:"Math 285 and Probability (Math 477 or Stat 381)",i:"Mathematics of Life Contingent Risk Models I. Leads to 487."},
+    gx0:{p:"math",code:"Entry",t:"Placement or no prerequisite",k:"opt",pre:[],i:"Courses that start from placement, application, or no prerequisite.",
+      list:[["01:640:001","Computational Skills","Placement","Fall, Spring","1.5","","No"],["01:640:123","Preparation for Calculus I","By application only. Half-semester course for students switching out of Calc I.","Occasional","2","","No"],["01:640:125","Methods of Mathematical Problem Solving","None. Typically taken in parallel with Precalculus or Calc I.","Occasional","2","","No"]]},
+    gx104:{p:"math",code:"Needs",t:"025 or 103 or placement",k:"opt",pre:[["m025",1],["m103",1]],i:"Quantitative reasoning courses.",
+      list:[["01:640:104","Introduction to Probability","Math 025 or Math 103 or placement","Fall, Spring","3","QQ, QR","No"],["01:640:106","Mathematics of Money","Math 025 or Math 103 or placement","Fall, Spring","3","QQ, QR","No"]]},
+    gx109:{p:"math",code:"Needs",t:"026 or 107 or placement",k:"opt",pre:[["m026",1],["m107",1]],i:"Teaching-track course.",
+      list:[["01:640:109","Geometry and Measurement for Middle School Teaching","Math 026 or Math 107 or placement","Spring (odd years)","3","QQ, QR","No"]]},
+    gx110:{p:"math",code:"Needs",t:"107",k:"opt",pre:[["m107"]],i:"Teaching-track course.",
+      list:[["01:640:110","Algebra for Middle School Teachers","Math 107","Spring (even years)","3","QQ, QR","No"]]},
+    gx130:{p:"math",code:"Needs",t:"111 or 115 or placement",k:"opt",pre:[["m111",1],["m115",1]],i:"Business Calculus is accepted as Calculus I for econ 320/321/322, but it cannot lead to 152.",
+      list:[["01:640:130","Business Calculus","Math 111 or Math 115 or placement","Fall, Spring, Summer","3","QQ, QR","No"]]},
+    gx157:{p:"math",code:"Support",t:"Taken alongside 151 or 152",k:"opt",pre:[["c1",1],["c2",1]],i:"One-credit practicums taken while enrolled in 151 or 152.",
+      list:[["01:640:157","Calc I Practicum (Math & Physical Sci)","Support course for students currently taking Math 151","Occasional","1","","No"],["01:640:158","Calc II Practicum (Math & Physical Sci)","Support course for students currently taking Math 152","Occasional","1","","No"]]},
+    gx196:{p:"math",code:"Needs",t:"Calc II + permission",k:"opt",pre:[["c2",1]],i:"Honors track only.",
+      list:[["01:640:196","First and Second Year Honors Seminar","Special permission only. Students should have completed at least Calc II.","Spring","1","","Honors track only"],["01:640:491","Mathematics Problem Solving Seminar","Special permission only. Students should have completed at least Calc II.","Fall","1","","Honors track only"]]},
+    gxtop:{p:"math",code:"Topics",t:"Topics vary",k:"opt",pre:[],col:8,i:"Prerequisites depend on the topic.",
+      list:[["01:640:492","Junior-Senior Honors Seminar","Special permission only. Topics and prerequisites vary.","Spring","1","","Honors track only"],["01:640:495","Selected Topics in Mathematics","Topics and prerequisites vary.","Occasional","3","","Yes"]]},
+    gx244:{p:"math",code:"Needs",t:"Calc III",k:"opt",pre:[["c3"]],i:"Counts as a minor elective.",
+      list:[["01:640:244","Differential Equations for Engineering and Physics","Calc III","Fall, Spring, Summer","4","","Yes"]]},
+    gx292:{p:"math",code:"Needs",t:"291",k:"opt",pre:[["m291"]],i:"Honors sequence.",
+      list:[["01:640:292","Honors Calculus IV","Math 291. Students who have taken Math 250 and Math 251 may also apply.","Spring","4","","Yes"]]},
+    gx354:{p:"math",code:"Needs",t:"250",k:"opt",pre:[["la"]],i:"A strong elective for economics.",
+      list:[["01:640:354","Linear Optimization","Math 250","Fall, Spring, Summer","3","","Yes"]]},
+    gx454:{p:"math",code:"Needs",t:"250 + Calc II",k:"opt",pre:[["la"],["c2"]],i:"",
+      list:[["01:640:454","Combinatorics","Math 250 and Calc II","Fall, Summer","3","","Yes"]]},
+    gx250:{p:"math",code:"Needs",t:"250 + Calc III",k:"opt",pre:[["la"],["c3"]],i:"",
+      list:[["01:640:357","Topics in Applied Algebra","Math 250 and Calc III","Spring","3","","Yes"],["01:640:428","Graph Theory","Math 250 and Calc III","Fall, Spring, Summer","3","","Yes"],["01:640:437","History of Mathematics","Math 250 and Calc III","Spring","3","","Yes"]]},
+    gxc4:{p:"math",code:"Needs",t:"Calc IV (252)",k:"opt",pre:[["m252"]],i:"Calc IV is 01:640:252. 421 and 423 cannot both earn credit.",
+      list:[["01:640:321","Introduction to Applied Mathematics","Calc IV","Fall","3","","Yes"],["01:640:325","Foundations of Quantum Mechanics","Calc IV","Fall","3","","Yes"],["01:640:373","Numerical Analysis I","Calc IV","Fall, Spring, Summer","3","","Yes"],["01:640:403","Intro to Theory of Functions of a Complex Variable","Calc IV","Spring","3","","Yes"],["01:640:421","Advanced Calculus for Engineering","Calc IV. No credit for both 421 and 423. Aimed at engineers and physics majors.","Fall, Spring, Summer","3","","Yes"],["01:640:423","Elementary Partial Differential Equations","Calc IV. No credit for both 421 and 423. Aimed at math majors.","Fall, Spring","3","","Yes"]]},
+    gx336:{p:"math",code:"Needs",t:"250 + Calc IV (252)",k:"opt",pre:[["la"],["m252"]],i:"",
+      list:[["01:640:336","Dynamical Models in Biology","Math 250 and Calc IV","Fall","3","","Yes"]]},
+    gx300:{p:"math",code:"Needs",t:"300 + Calc III",k:"opt",pre:[["m300"],["c3"]],i:"361 accepts 250 or Calc III alongside 300.",
+      list:[["01:640:356","Theory of Numbers","Math 300 and Calc III","Spring","3","","Yes"],["01:640:361","Set Theory","Math 300 and either Math 250 or Calc 3","Fall","3","","Yes"],["01:640:461","Mathematical Logic","Math 300 and Calc III","Spring","3","","Yes"]]},
+    gx350:{p:"math",code:"Needs",t:"250 + Calc III + 300",k:"opt",pre:[["la"],["c3"],["m300"]],i:"350 and 351 need a C or better in 300.",
+      list:[["01:640:350","Linear Algebra","Math 250 and Calc III and a C or better in Math 300","Fall, Spring","3","","Yes"],["01:640:351","Introduction to Abstract Algebra I","Math 250 and Calc III and a C or better in Math 300","Fall, Spring","4","","Yes"],["01:640:435","Geometry","Math 250 and Calc III and Math 300","Fall (frequently)","3","","Yes"]]},
+    gx348:{p:"math",code:"Needs",t:"250 + one of 300, 356, 477",k:"opt",pre:[["la"],["m300",1],["gx300",1],["m477",1]],i:"",
+      list:[["01:640:348","Cryptography","Math 250 and one of Math 300, Math 356, or Math 477","Spring","3","","Yes"]]},
+    gx311:{p:"math",code:"Needs",t:"311",k:"opt",pre:[["m311"]],i:"",
+      list:[["01:640:312","Introduction to Real Analysis II","Math 311","Spring (frequently)","3","","Yes"],["01:640:432","Introduction to Differential Geometry","Math 311. Material from Math 250 and Calc III is also essential.","Spring (frequently)","3","","Yes"]]},
+    gx412:{p:"math",code:"Needs",t:"411",k:"opt",pre:[["m411"]],i:"",
+      list:[["01:640:412","Mathematical Analysis II","Math 411","Spring","3","","Yes"]]},
+    gx442:{p:"math",code:"Needs",t:"441",k:"opt",pre:[["m441"]],i:"",
+      list:[["01:640:442","Introductory Topology II","Math 441","Spring (frequently)","3","","Yes"]]},
+    gx452:{p:"math",code:"Needs",t:"451",k:"opt",pre:[["m451"]],i:"",
+      list:[["01:640:452","Abstract Algebra II","Math 451","Spring","3","","Yes"]]},
+    gxpr:{p:"math",code:"Needs",t:"250 + Calc III + probability",k:"opt",pre:[["la"],["c3"],["m477"]],i:"Probability means Math 477 (or Stat 381; 338 also accepts CS 206).",
+      list:[["01:640:338","Discrete and Probabilistic Models in Biology","Math 250, Calc III, and Probability (Math 477 or CS 206 or Stat 381)","Spring","3","","Yes"],["01:640:478","Introduction to Stochastic Processes","Math 250 and Calc III and Probability (Math 477 or Stat 381)","Fall, Spring, Summer","3","","Yes"]]},
+    gx481:{p:"math",code:"Needs",t:"250 + probability",k:"opt",pre:[["la"],["m477"]],i:"A strong elective for economics.",
+      list:[["01:640:481","Mathematical Theory of Statistics","Math 250 and Probability (Math 477 or Stat 381)","Fall, Spring","3","","Yes"]]},
+    gx488:{p:"math",code:"Needs",t:"Probability (477)",k:"opt",pre:[["m477"]],i:"",
+      list:[["01:640:488","Mathematics of Short-Term Risk Models","Probability (Math 477)","Spring","3","","Yes"]]},
+    gx487:{p:"math",code:"Needs",t:"C or better in 486",k:"opt",pre:[["m486"]],i:"",
+      list:[["01:640:487","Life Contingent Risk Models II","C or better in Math 486","Spring","3","","Yes"]]},
+    gx489:{p:"math",code:"Needs",t:"485 or B+ in 477",k:"opt",pre:[["m485",1],["m477",1]],i:"489 also needs intro programming (CS 107, CS 111 or 14:332:252).",
+      list:[["01:640:489","Computational Finance","Math 485 (or B+ or better in Math 477) and Intro Programming (CS 107 or CS 111 or 14:332:252)","Spring","3","","Yes"],["01:640:490","Topics in Mathematical Finance","Math 485 or B+ or better in Math 477","Spring","3","","Yes"]]},
+    mel:{p:"math",code:"Choose 4",t:"Math electives",k:"opt",pre:[["c3"],["la"]],i:"Four courses from 252, 244 or 300–400 level math (not 491/492). Open the Mathematics tab to see each one."},
+
+    c120:{p:"cs",code:"01:198:120",t:"Introduction to Programming",k:"opt",pre:[],sem:"Spring",cr:"4",core:"QQ, QR",mn:"Yes",pr:"None",u:"01-198-111-introduction-to-computer-science",i:"The new first course. Its page still sits at the old 111 address."},
+    c121:{p:"cs",code:"01:198:121",t:"Introduction to Computer Science",k:"opt",pre:[["c120"]],sem:"Spring",cr:"4",core:"QQ, QR",mn:"Yes",pr:"01:198:120",u:"01-198-121-introduction-to-computer-science",i:"Replaces the old 01:198:111. Older course pages that list 111 as a prerequisite now mean this course."},
+    ds:{p:"cs",code:"01:198:112",t:"Data Structures",k:"opt",pre:[["c121"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:111 (now 121). No credit with 14:332:351.",u:"01-198-112-data-structures",i:"Listed as 122 on the minor page, which links to this course."},
+    c142:{p:"cs",code:"01:198:142 / 143",t:"Data 101: Data Literacy",k:"opt",pre:[],sem:"Fall, Spring, Summer, Winter",cr:"4 / 3",core:"CCO, QQ, QR",mn:"No",pr:"Placement in 01:640:026 (or completion of Math 025). No programming experience required.",u:"01-198-142-data-101-data-literacy",i:"142 is the standard version (4 credits); 143 is the hybrid version (3 credits). Not on the minor list, but it is a prerequisite option for 210."},
+    c205:{p:"cs",code:"01:198:205",t:"Discrete Structures I",k:"opt",pre:[["c121"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:111 (now 121). No credit with 14:332:312.",u:"01-198-205-introduction-to-discrete-structures-i",i:"Introduction to Discrete Structures I."},
+    c206:{p:"cs",code:"01:198:206",t:"Discrete Structures II",k:"opt",pre:[["c205"],["c2"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:205 or 14:332:202; 01:640:152. No credit with 01:640:477 or 14:332:226.",u:"01-198-206-introduction-to-discrete-structures-ii",i:"Introduction to Discrete Structures II."},
+    c210:{p:"cs",code:"01:198:210",t:"Data Management for Data Science",k:"opt",pre:[["c142",1],["c121",1]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"CS 142 (Data 101) or CS 111 (now 121)",u:"01-198-210-data-management-for-data-science",i:"Not open to students who took 439."},
+    c211:{p:"cs",code:"01:198:211",t:"Computer Architecture",k:"opt",pre:[["ds"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:112 or 14:332:351. No credit with 14:332:331.",u:"01-198-211-computer-architecture",i:""},
+    c213:{p:"cs",code:"01:198:213",t:"Software Methodology",k:"opt",pre:[["ds"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:112",u:"01-198-213-software-methodology",i:""},
+    c214:{p:"cs",code:"01:198:214",t:"Systems Programming",k:"opt",pre:[["ds"],["c211",1]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:112; corequisite 01:198:211 (or currently enrolled)",u:"01-198-214-systems-programming",i:""},
+    c310:{p:"cs",code:"01:198:310",t:"Data Science Capstone Project",k:"opt",pre:[["c142"],["c210",1]],sem:"Fall, Spring",cr:"1",core:"",mn:"No",pr:"Data 101 (142); 01:960:291; and one of 01:198:210, 01:960:295 or 04:547:221",u:"",href:"https://www.cs.rutgers.edu/academics/undergraduate/course-synopses/course-details/data-science-capstone-project-2",i:"Data science track course. Not on the minor list."},
+    c314:{p:"cs",code:"01:198:314",t:"Principles of Programming Languages",k:"opt",pre:[["c211"],["c205"],["c2"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:211 or 14:332:331; 01:198:205 or 14:332:312; 01:640:152",u:"01-198-314-principles-of-programming-languages",i:""},
+    c323:{p:"cs",code:"01:198:323",t:"Numerical Analysis and Computing",k:"opt",pre:[["c2"],["la"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:640:152; 01:640:250. No credit with 01:640:373.",u:"01-198-323-numerical-analysis-and-computing",i:""},
+    c324:{p:"cs",code:"01:198:324",t:"Numerical Methods",k:"opt",pre:[["c323"]],sem:"Fall, Spring, Summer, Winter",cr:"4",core:"",mn:"Yes",pr:"01:198:323 or 01:640:373. No credit with 01:640:374.",u:"01-198-324-numerical-methods",i:""},
+    c334:{p:"cs",code:"01:198:334",t:"Intro to Imaging and Multimedia",k:"opt",pre:[["ds"],["c206"],["la"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:112 or 14:332:351; 01:198:206 or 14:332:226 or 01:640:477; 01:640:250",u:"01-198-334-introduction-to-imaging-and-multimedia",i:""},
+    c336:{p:"cs",code:"01:198:336",t:"Info and Data Management",k:"opt",pre:[["c2"],["ds"],["c205"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:640:152; 01:198:112; 01:198:205 or 14:332:312",u:"01-198-336-principles-of-information-and-data-management",i:"Principles of Information and Data Management."},
+    c344:{p:"cs",code:"01:198:344",t:"Design & Analysis of Algorithms",k:"opt",pre:[["ds"],["c206"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:112; 01:198:206",u:"01-198-344-design-and-analysis-of-computer-algorithms",i:"Design and Analysis of Computer Algorithms."},
+    c345:{p:"cs",code:"01:198:345",t:"Algorithms in Society",k:"opt",pre:[["c210",1],["ds",1]],sem:"Fall, Spring, Winter",cr:"4",core:"",mn:"Yes",pr:"01:198:210 or 01:198:112, and knowledge of Python, or permission of instructor",u:"01-198-345-algorithms-in-society",i:""},
+    c352:{p:"cs",code:"01:198:352",t:"Internet Technology",k:"opt",pre:[["c211"],["c206"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:211 or 14:332:331; 01:198:206 or 01:640:477 or 14:332:321 or 14:332:226",u:"01-198-352-internet-technology",i:""},
+    c411:{p:"cs",code:"01:198:411",t:"Computer Architecture II",k:"opt",pre:[["c211"]],sem:"Not listed",cr:"4",core:"",mn:"Yes",pr:"01:198:211 or 14:332:331",u:"01-198-411-computer-architecture-ii",i:""},
+    c416:{p:"cs",code:"01:198:416",t:"Operating Systems Design",k:"opt",pre:[["c214"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:214",u:"01-198-416-operating-systems-design",i:""},
+    c417:{p:"cs",code:"01:198:417",t:"Distributed Systems",k:"opt",pre:[["c416"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:416",u:"01-198-417-distributed-systems-concepts-and-design",i:"Distributed Systems: Concepts and Design."},
+    c419:{p:"cs",code:"01:198:419",t:"Computer Security",k:"opt",pre:[["c2"],["c205"],["c416",1],["c352",1]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:640:152; 01:198:205; and either 01:198:416 or 01:198:352",u:"01-198-419-computer-security",i:""},
+    c424:{p:"cs",code:"01:198:424",t:"Modeling & Simulation",k:"opt",pre:[["c323"]],sem:"Fall, Spring, Summer, Winter",cr:"4",core:"",mn:"Yes",pr:"01:198:323 or 01:640:373 or permission of instructor",u:"01-198-424-modeling-and-simulation-of-continuous-systems",i:"Modeling and Simulation of Continuous Systems."},
+    c425:{p:"cs",code:"01:198:425",t:"Brain-Inspired Computing",k:"opt",pre:[["c206"],["c2"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:206 and (01:640:136 or 01:640:152)",u:"01-198-425-computer-methods-in-statistics",i:"The minor page's link for 425 opens this course."},
+    c428:{p:"cs",code:"01:198:428",t:"Intro to Computer Graphics",k:"opt",pre:[["ds"],["c2"],["la"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:112 or 14:332:351; Calc II; 01:640:250. 323 recommended. No credit with 14:332:474.",u:"01-198-428-introduction-to-computer-graphics",i:""},
+    c431:{p:"cs",code:"01:198:431",t:"Software Engineering",k:"opt",pre:[["c213"],["c314",1],["c336",1],["c352",1],["c416",1]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:213 and one of 314, 336, 352 or 416 (or permission of instructor)",u:"01-198-431-software-engineering",i:""},
+    c437:{p:"cs",code:"01:198:437",t:"Database Systems Implementation",k:"opt",pre:[["c214",1],["c336",1]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"No course listed; the page links 214 and 336 as related courses",u:"01-198-437-database-systems-implementation",i:""},
+    c439:{p:"cs",code:"01:198:439",t:"Intro to Data Science",k:"opt",pre:[["c205"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:205",u:"01-198-439-introduction-to-data-science",i:"Students who took 439 may not register for 210."},
+    c440:{p:"cs",code:"01:198:440",t:"Intro to Artificial Intelligence",k:"opt",pre:[["c205"],["c2"]],sem:"Fall, Spring, Summer",cr:"4",core:"",mn:"Yes",pr:"01:198:205; 01:640:152",u:"01-198-440-introduction-to-artificial-intelligence",i:""},
+    c442:{p:"cs",code:"01:198:442–445",t:"Topics in Computer Science",k:"opt",pre:[],col:4,sem:"442: Spring, Winter · 443: Fall, Spring, Summer · 444: Spring · 445: Fall, Spring",cr:"442: 4 · 443–445: 3",core:"",mn:"442 only (unless otherwise specified)",pr:"None listed; topics vary",u:"01-198-442-topics-in-computer-science",i:"Four course numbers share this title. Only 442 is on the minor list."},
+    c452:{p:"cs",code:"01:198:452",t:"Formal Languages and Automata",k:"opt",pre:[["c344"]],sem:"Fall, Spring",cr:"3",core:"",mn:"Yes",pr:"01:198:344",u:"01-198-452-formal-languages-and-automata",i:""},
+    c460:{p:"cs",code:"01:198:460",t:"Intro to Computational Robotics",k:"opt",pre:[["c206",1]],sem:"Fall",cr:"4",core:"",mn:"Yes",pr:"None listed; the page links 206 as a related course",u:"01-198-460-introduction-to-computational-robotics",i:""},
+    c461:{p:"cs",code:"01:198:461",t:"Machine Learning Principles",k:"opt",pre:[["c206"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:198:206 (probability or statistics courses can meet this requirement)",u:"01-198-461-machine-learning-principles",i:""},
+    c462:{p:"cs",code:"01:198:462",t:"Intro to Deep Learning",k:"opt",pre:[["la"],["ds"],["c206"]],sem:"Fall, Spring",cr:"4",core:"",mn:"Yes",pr:"01:640:250; 01:198:112; 01:198:206 (or 01:640:477 or 01:960:379)",u:"01-198-462-introduction-to-deep-learning",i:""},
+    gcx:{p:"cs",code:"Not for the minor",t:"Intro and non-major courses",k:"opt",pre:[],col:0,i:"These do not count toward the CS minor. 105, 107, 110 and 170 are explicitly excluded.",
+      list:[["01:198:103","Introduction to Computer Skills","None listed; corequisite 111 (now 121)","Spring","1","","No"],["01:198:105","Great Insights in Computer Science","01:640:026 or 01:640:027","Fall, Spring","3","QR","No (excluded)"],["01:198:107","Computing for Math and the Sciences","Calculus I. Not open to declared CS majors.","Fall, Spring","4","QR","No (excluded)"],["01:198:110","Principles of Computer Science","None. No credit with 01:198:170.","Fall, Spring","3","QR","No (excluded)"],["01:198:170","Computer Application for Business","None. Limited to prebusiness and business majors.","Fall, Spring, Summer","3","QR","No (excluded)"],["01:198:195","Honors Seminar in Computer Science","None listed","Spring","1","","No"]]},
+    gcu:{p:"cs",code:"Not for the minor",t:"Upper-level, not on the list",k:"opt",pre:[],col:4,i:"Upper-level CS courses that are not on the minor list. 405 is explicitly excluded.",
+      list:[["01:198:405","Seminar in Computers and Society","Any CS course; any course in anthropology, sociology, political science or philosophy; senior standing","Fall, Spring","3","CCO, WCd","No (excluded)"],["01:198:493 / 494","Independent Study in Computer Science","None listed","493: Fall, Summer · 494: Spring","By arrangement","","No"],["01:198:495","Honors Capstone 1","None listed. The page says it is no longer offered.","Fall","3","","No"]]},
+    cs2:{p:"cs",code:"Optional",t:"200-level CS",k:"opt",pre:[["ds",1]],i:"210 Data Management, 211 Computer Architecture, 213 Software Methodology, 214 Systems Programming. See the Computer Science tab."},
+    cs3:{p:"cs",code:"At least 2",t:"300/400-level CS",k:"opt",pre:[["c206",1],["ds",1]],i:"At least 2 of your 6 CS courses must be 01:198:3xx or 4xx. See the Computer Science tab for all 25 options."}
+  };
+  Object.values(C).forEach(c=>{if(!c.list||!c.list.some(x=>Array.isArray(x[7])))return;const n=c.list.length,cnt={};c.list.forEach(x=>(x[7]||[]).forEach(d=>cnt[d]=(cnt[d]||0)+1));c.pre=Object.keys(cnt).map(d=>cnt[d]===n?[d]:[d,1]);});
+  const PN={econ:"Economics major",math:"Mathematics minor",cs:"Computer Science minor"};
+  const TABS=[
+    {id:"all",name:"Combined plan",lanes:[["econ","Economics","Major · 12 courses"],["math","Mathematics","Minor · 8 courses"],["cs","Computer Science","Minor · 6 courses"]],
+     nodes:["pre","c1","la","c2","c3","mel","st","e102","e103","e320","e321","e322","e300","e400","c120","c121","ds","c205","c206","cs2","cs3"],
+     lane:{pre:"math",st:"econ"},
+     req:[["econ","Econ","5 core + 7 electives"],["math","Math","3 calculus + 250 + 4 electives"],["cs","CS","6 courses, 2+ upper level"]]},
+    {id:"econ",name:"Economics",keep:["cCOMP","cTHE","cFIN","cGLO","cPUB","gEU"],nodes:["pre","c1","st","e102","e103","e320","e321","e322","c2","gEL","cCOMP","cTHE","cFIN","cGLO","cPUB","gEU"],ext:["c2"],
+     req:[["econ","Intro","102, 103 · C or better"],["econ","Core","320, 321, 322"],["econ","Electives","7: ≥4 at 400, ≤3 at 300"],["econ","Grades","1 D allowed in electives"],["econ","Certificates","5 options · 4 courses each, B or better, GPA 3.0"]]},
+    {id:"math",name:"Mathematics",nodes:["m025","m103","gx0","m026","m107","gx104","gx109","gx110","m111","m115","m112","gx130","m135","c1","la","c2","gx157","gx196","c3","m291","gx292","m252","gx244","m285","m300","gx354","gx454","gx250","gx336","gxc4","gx300","gx350","gx348","m311","gx311","m411","gx412","m441","gx442","m451","gx452","m477","gxpr","gx481","gx488","m485","m486","gx487","gx489","gxtop"],extra:[["m112","c1",1],["m115","c1",1],["m112","la",1],["m115","la",1],["m135","c2",1]],
+     req:[["math","Calculus","151, 152, 251 · C or better"],["math","Linear algebra","250 · C or better"],["math","Electives","Choose 4 (dashed)"],["math","Residency","3 of 4 at New Brunswick"]]},
+    {id:"cs",name:"Computer Science",nodes:["c2","la","gcx","c142","c120","c121","ds","c205","c206","c210","c211","c213","c214","c310","c314","c323","c324","c334","c336","c344","c345","c352","c411","c416","c417","c419","c424","c425","c428","c431","c437","c439","c440","c442","c452","c460","c461","c462","gcu"],ext:["c2","la"],
+     req:[["cs","Total","Any 6 from the list"],["cs","Upper level","≥2 at 3xx/4xx"],["cs","Residency","5 of 6 at New Brunswick"],["cs","Grades","Max one D"]]}
+  ];
+  const W=224,H=62,GX=58,GY=12,TOP=42,PADX=24,PADB=24,LH=18;
+  const SH=56,SG=6;
+  const gCols=id=>C[id].list.length>=5?2:1;
+  const wOf=id=>C[id].list&&gCols(id)===2?2*W+SG+14:W;
+  const hOf=id=>C[id].list?40+Math.ceil(C[id].list.length/gCols(id))*(SH+SG)+4:H;
+  const SEM=s=>s.replace(/Fall/,"F").replace(/Spring/,"Sp").replace(/Summer/,"Su").replace(/Winter/,"W").replace(/, /g," · ");
+  const canvas=document.getElementById("canvas"),side=document.getElementById("side"),reqbar=document.getElementById("reqbar"),tabsEl=document.getElementById("tabs");
+  const NS="http://www.w3.org/2000/svg";
+  let state={tab:null,sel:null,edges:[],els:{}};
+
+  TABS.forEach((t,i)=>{const b=document.createElement("button");b.type="button";b.role="tab";b.id="tab-"+t.id;
+    b.style.setProperty("--c",t.id==="all"?"var(--ink)":`var(--${t.id})`);b.innerHTML=`<i></i>${t.name}`;
+    b.onclick=()=>render(t.id);tabsEl.appendChild(b)});
+
+  function render(tid){
+    const T=TABS.find(t=>t.id===tid); state={tab:T,sel:null,edges:[],els:{}};
+    try{localStorage.setItem("ru-tab",tid)}catch(e){}
+    [...tabsEl.children].forEach(b=>b.setAttribute("aria-selected",b.id==="tab-"+tid));
+    reqbar.innerHTML=T.req.map(([p,k,v])=>`<span class="req" style="--c:var(--${p})"><b>${k}</b>${v}</span>`).join("");
+    const ids=T.nodes, inTab=new Set(ids), ext=new Set(T.ext||[]);
+    const pre=id=>[...C[id].pre,...(T.extra||[]).filter(e=>e[1]===id).map(e=>[e[0],e[2]])].filter(([x])=>inTab.has(x));
+    const col={}; const gc=id=>{if(col[id]!=null)return col[id]; const ps=pre(id); col[id]=C[id].col!=null?C[id].col:(ps.length?Math.max(...ps.map(([x])=>gc(x)))+1:0); return col[id]};
+    ids.forEach(gc);
+    const nCols=Math.max(...ids.map(id=>col[id]))+1;
+    const lanes=T.lanes||[[T.id,"",""]];
+    const laneOf=id=>T.lanes?((T.lane&&T.lane[id])||C[id].p):T.id;
+    const LW=T.lanes?140:0;
+    // group into lane×col, order by barycenter of parents
+    const grid={}; lanes.forEach(([l])=>{grid[l]=[];for(let c=0;c<nCols;c++)grid[l][c]=[]});
+    ids.forEach(id=>grid[laneOf(id)][col[id]].push(id));
+    const rowPos={};
+    const assign=()=>lanes.forEach(([l])=>grid[l].forEach(arr=>arr.forEach((id,i)=>rowPos[id]=i)));
+    assign();
+    for(let pass=0;pass<4;pass++){
+      lanes.forEach(([l])=>grid[l].forEach(arr=>{
+        const bc=id=>{const ps=pre(id).filter(([x])=>laneOf(x)===l);return ps.length?ps.reduce((s,[x])=>s+rowPos[x],0)/ps.length:rowPos[id]};
+        arr.sort((a,b)=>{const K=T.keep||[],ia=K.indexOf(a),ib=K.indexOf(b);return ia>=0&&ib>=0?ia-ib:bc(a)-bc(b)});
+      })); assign();
+    }
+    const pos={}; let y=TOP+10; const bands=[];
+    const colH=arr=>arr.reduce((s,id)=>s+hOf(id)+GY,0)-GY;
+    const colW=[],colX=[];
+    for(let c=0;c<nCols;c++){colW[c]=Math.max(W,...ids.filter(id=>col[id]===c).map(wOf));colX[c]=c?colX[c-1]+colW[c-1]+GX:PADX+LW}
+    lanes.forEach(([l,name,sub])=>{
+      const bh=Math.max(H,...grid[l].map(colH));
+      grid[l].forEach((arr,c)=>{let yy=y+16+(T.lanes?(bh-Math.max(0,colH(arr)))/2:0); arr.forEach(id=>{pos[id]={x:colX[c],y:yy};yy+=hOf(id)+GY})});
+      bands.push({l,name,sub,y,h:bh+32}); y+=bh+32;
+    });
+    const width=colX[nCols-1]+colW[nCols-1]+PADX, height=y+PADB;
+    canvas.innerHTML=""; canvas.style.width=width+"px"; canvas.style.height=height+"px";
+    canvas.classList.remove("focus");
+    if(T.lanes) bands.forEach(b=>{const d=document.createElement("div");d.className="lane";d.style.top=b.y+"px";d.style.height=b.h+"px";canvas.appendChild(d);
+      const lb=document.createElement("div");lb.className="lanelab";lb.style.setProperty("--c",`var(--${b.l})`);lb.style.top=(b.y+b.h/2-18)+"px";lb.innerHTML=`<b>${b.name}</b><small>${b.sub}</small>`;canvas.appendChild(lb)});
+    const heads=["Start here","Foundations","Core","Building","Advanced","Advanced","Advanced"];
+    for(let c=0;c<nCols;c++){const h=document.createElement("div");h.className="colh";h.style.left=colX[c]+"px";h.textContent=(c===0?"No prerequisites":`Step ${c}`);canvas.appendChild(h)}
+    const svg=document.createElementNS(NS,"svg");svg.setAttribute("width",width);svg.setAttribute("height",height);
+    svg.innerHTML=`<defs>${["edge","econ","math","cs"].map(k=>`<marker id="ar-${k}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" style="fill:var(--${k})"/></marker>`).join("")}</defs>`;
+    canvas.appendChild(svg);
+    ids.forEach(id=>pre(id).forEach(([f,d])=>{
+      const a=pos[f],b=pos[id]; const x1=a.x+wOf(f),y1=a.y+hOf(f)/2,x2=b.x-1,y2=b.y+Math.min(hOf(id)/2,22); const dx=Math.max(26,(x2-x1)*.45);
+      const p=document.createElementNS(NS,"path");p.setAttribute("class","e"+(d?" d":""));
+      p.setAttribute("d",`M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`);p.setAttribute("marker-end","url(#ar-edge)");
+      svg.appendChild(p); state.edges.push({f,t:id,p});
+    }));
+    ids.forEach(id=>{
+      const c=C[id],k=ext.has(id)?"ext":c.k;
+      if(c.list){
+        const g=document.createElement("div");g.className=`node grp p-${c.p}`;g.setAttribute("role","group");g.setAttribute("aria-label",c.t);
+        g.style.left=pos[id].x+"px";g.style.top=pos[id].y+"px";g.style.width=wOf(id)+"px";g.style.height=hOf(id)+"px";
+        g.innerHTML=`<button type="button" class="gh"><span>${c.code} · <b>${c.t}</b></span><em>${c.list.length} course${c.list.length>1?"s":""}</em></button>
+          <div class="subs" style="grid-template-columns:repeat(${gCols(id)},1fr)">${c.list.map(([n,t,p,s,cr,co,mn],i)=>`<button type="button" class="sub${mn&&/^No/.test(mn)?" nm":""}" data-i="${i}" style="height:${SH}px">
+            <span class="sc"><span>${n}${c.list[i][8]?` <i>${c.list[i][8]}</i>`:""}</span><em>${SEM(s)}</em></span><span class="st">${t}</span><span class="sp">Prereq: ${p.replace(/01:220:/g,"").replace(/;.*$/,"")}</span></button>`).join("")}</div>`;
+        g.querySelector(".gh").onclick=()=>select(id);
+        g.querySelectorAll(".sub").forEach(b=>b.onclick=()=>select(id,+b.dataset.i));
+        canvas.appendChild(g);state.els[id]=g;return;
+      }
+      const b=document.createElement("button");b.type="button";
+      b.className=`node p-${c.p} k-${k}${c.mn&&/^No/.test(c.mn)?" nm":""}`;b.style.left=pos[id].x+"px";b.style.top=pos[id].y+"px";b.style.width=W+"px";b.style.height=H+"px";
+      const badge=k==="ext"?(c.p==="math"?"Math":c.p):c.sem&&c.sem.length<26?SEM(c.sem):k==="ext"?(c.p==="math"?"Math":c.p):(k==="opt"&&!/^[A-Z]/.test(c.code)?"option":"");
+      b.innerHTML=`<span class="nc"><span>${c.code}</span>${badge?`<em>${badge}</em>`:""}</span><span class="nt">${c.t}</span>`;
+      b.setAttribute("aria-label",`${c.code} ${c.t}`);
+      b.onclick=()=>select(id);canvas.appendChild(b);state.els[id]=b;
+    });
+    state.w=width; fit();
+    sideEmpty();
+  }
+  const wrap=document.querySelector(".canvas-wrap");
+  function fit(){ if(!state.w)return; const s=Math.min(1,Math.max(.78,(wrap.clientWidth-4)/state.w)); canvas.style.zoom=s; }
+  try{new ResizeObserver(fit).observe(wrap)}catch(e){addEventListener("resize",fit)}
+  const closure=(id,dir)=>{const s=new Set([id]);let ch=true;while(ch){ch=false;state.edges.forEach(({f,t})=>{const [a,b]=dir?[f,t]:[t,f];if(s.has(a)&&!s.has(b)){s.add(b);ch=true}})}return s};
+  function select(id,item){
+    const key=item==null?id:id+":"+item;
+    if(state.sel===key){clearSel();return}
+    state.sel=key; const it=item!=null?C[id].list[item]:null, iids=it&&Array.isArray(it[7])?it[7]:null;
+    const up=iids?new Set([id,...iids.flatMap(x=>[...closure(x,0)])]):closure(id,0),dn=closure(id,1),on=new Set([...up,...dn]);
+    canvas.classList.add("focus");
+    Object.entries(state.els).forEach(([k,el])=>{el.classList.toggle("on",on.has(k));el.classList.toggle("sel",k===id&&item==null)});
+    canvas.querySelectorAll(".sub").forEach(s=>{const mine=s.closest(".grp")===state.els[id];s.classList.toggle("sel",mine&&+s.dataset.i===item);s.classList.toggle("dim",mine&&item!=null&&+s.dataset.i!==item)});
+    state.edges.forEach(({f,t,p})=>{const o=(up.has(f)&&up.has(t))||(dn.has(f)&&dn.has(t));p.classList.toggle("on",o);
+      p.setAttribute("marker-end",`url(#ar-${o?C[t].p:"edge"})`);p.style.stroke=o?`var(--${C[t].p})`:""});
+    const c=C[id];
+    const lst=a=>a.length?`<ul>${a.map(x=>`<li><button type="button" data-id="${x}">${C[x].code.startsWith("0")?C[x].code.replace(/^01:\d{3}:/,"")+" · ":""}${C[x].t}</button></li>`).join("")}</ul>`:`<p style="color:var(--muted)">None</p>`;
+    const needs=iids?iids.filter(x=>state.els[x]):state.edges.filter(e=>e.t===id).map(e=>e.f), unl=state.edges.filter(e=>e.f===id).map(e=>e.t);
+    const counts=id==="pre"||id==="st"?"Economics major (support course)":id==="c1"?"Economics major, Mathematics minor":PN[c.p];
+    side.style.setProperty("--c",`var(--${c.p})`);
+    if(item!=null){const [n,t,p,s,cr,co,mn]=c.list[item];
+      side.innerHTML=`<div><div class="cc">${n}</div><h3>${t}</h3></div>
+        <div class="kv"><span class="label">Prerequisites</span><p>${p}</p></div>
+        <div class="kv"><span class="label">Semesters offered</span><p>${s}</p></div>${facts(cr,co,mn)}
+        <div class="kv"><span class="label">Elective group</span><p>${c.code} · ${c.t}. ${c.i}</p></div>
+        <div class="kv"><span class="label">Needs</span>${lst(needs)}</div>
+        <div class="kv"><span class="label">Counts toward</span><p>${PN[c.p]}</p></div>
+        <button class="clr" type="button">Clear selection</button>${legend()}`;
+      side.querySelector(".clr").onclick=clearSel;
+      side.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{state.sel=null;select(b.dataset.id)});
+      return;}
+    side.innerHTML=`<div><div class="cc">${c.code}</div><h3>${c.t}</h3></div>
+      ${c.sem?`<div class="kv"><span class="label">Semesters offered</span><p>${c.sem}</p></div>`:""}${c.pr?`<div class="kv"><span class="label">Prerequisites (as listed)</span><p>${c.pr}</p></div>`:""}${facts(c.cr,c.core,c.mn)}
+      
+      <div class="kv"><span class="label">Details</span><p>${c.i}</p></div>
+      ${c.list?`<div class="kv"><span class="label">Courses and prerequisites</span><ul class="cl">${c.list.map(([n,t,p])=>`<li><span class="cc">${n}</span> <b>${t}</b><br><span style="color:var(--muted)">${p}</span></li>`).join("")}</ul></div>`:""}
+      <div class="kv"><span class="label">Needs</span>${lst(needs)}</div>
+      <div class="kv"><span class="label">Unlocks</span>${lst(unl)}</div>
+      <div class="kv"><span class="label">Counts toward</span><p>${counts}</p></div>
+      ${c.u||c.href?`<a class="lnk" href="${c.href||CSB+c.u}" target="_blank" rel="noopener">Course page on cs.rutgers.edu ↗</a>`:""}
+      <button class="clr" type="button">Clear selection</button>${legend()}`;
+    side.querySelector(".clr").onclick=clearSel;
+    side.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{state.sel=null;select(b.dataset.id);state.els[b.dataset.id].scrollIntoView({block:"nearest",inline:"nearest",behavior:"smooth"})});
+  }
+  function facts(cr,co,mn){const r=[];if(cr)r.push(["Credits",cr]);if(co)r.push(["Core codes",co]);if(mn)r.push(["Counts toward minor",mn]);return r.map(([k,v])=>`<div class="kv"><span class="label">${k}</span><p>${v}</p></div>`).join("")}
+  function clearSel(){state.sel=null;canvas.classList.remove("focus");Object.values(state.els).forEach(el=>el.classList.remove("on","sel"));
+    canvas.querySelectorAll(".sub").forEach(s=>s.classList.remove("sel","dim"));
+    state.edges.forEach(({p})=>{p.classList.remove("on");p.setAttribute("marker-end","url(#ar-edge)");p.style.stroke=""});sideEmpty()}
+  function legend(){return `<div class="legend"><span><i></i>Required course</span><span><i class="o"></i>Option / choose from pool</span><span><i class="x"></i>From another program</span><span><i class="l"></i>Prerequisite</span><span><i class="l d"></i>One of several, or related</span></div>`}
+  function sideEmpty(){side.style.removeProperty("--c");side.innerHTML=`<div class="kv"><span class="label">Course details</span><p class="empty">Select a course in the flowchart to see its prerequisites, what it unlocks, and which program it counts toward.</p></div>${legend()}`}
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")clearSel()});
+  let start="all"; try{const s=localStorage.getItem("ru-tab"); if(s&&TABS.some(t=>t.id===s))start=s}catch(e){}
+  render(start);
+})();
+</script>
+</body>
+</html>
